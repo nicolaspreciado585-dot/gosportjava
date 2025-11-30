@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title th:text="${cancha.nombre} + ' - GoSports'">Detalle Cancha</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <header th:replace="~{fragments/navbar :: main-navbar}"></header>
+
+    <div class="container my-5">
+        
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a th:href="@{/}">Inicio</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/canchas}">Canchas</a></li>
+                <li class="breadcrumb-item active" th:text="${cancha.nombre}">Cancha</li>
+            </ol>
+        </nav>
+
+        <div class="row">
+            <!-- Imagen y galería -->
+            <div class="col-md-7">
+                <div class="card shadow-sm mb-4">
+                    <img th:src="${cancha.fotoUrl != null ? cancha.fotoUrl : 'https://placehold.co/800x500/343a40/ffffff?text=Sin+Foto'}" 
+                         class="card-img-top rounded"
+                         style="height: 400px; object-fit: cover;"
+                         th:alt="${cancha.nombre}">
+                </div>
+
+                <!-- Descripción -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-info-circle"></i> Descripción
+                        </h5>
+                        <p class="card-text" th:text="${cancha.descripcion}">
+                            Descripción de la cancha
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Ubicación -->
+                <div class="card shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <i class="bi bi-geo-alt-fill text-danger"></i> Ubicación
+                        </h5>
+                        <p class="mb-1">
+                            <strong>Dirección:</strong> 
+                            <span th:text="${cancha.direccion}">Dirección</span>
+                        </p>
+                        <p class="mb-1">
+                            <strong>Barrio:</strong> 
+                            <span th:text="${cancha.barrio}">Barrio</span>
+                        </p>
+                        <p class="mb-0">
+                            <strong>Localidad:</strong> 
+                            <span th:text="${cancha.localidad}">Localidad</span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Información y reserva -->
+            <div class="col-md-5">
+                <div class="card shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-dark text-white">
+                        <h3 class="mb-0" th:text="${cancha.nombre}">Cancha</h3>
+                        <span class="badge bg-success mt-2">Disponible</span>
+                    </div>
+                    <div class="card-body">
+                        
+                        <!-- Deporte -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <h6 class="text-muted mb-2">DEPORTE</h6>
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-trophy-fill text-primary fs-3 me-3"></i>
+                                <h5 class="mb-0" th:text="${cancha.deporte.nombre}">Fútbol</h5>
+                            </div>
+                        </div>
+
+                        <!-- Precios -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <h6 class="text-muted mb-2">PRECIOS</h6>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Hora completa:</span>
+                                <strong class="text-success fs-5">
+                                    $<span th:text="${#numbers.formatDecimal(cancha.precioHora, 0, 'COMMA', 0, 'POINT')}">80000</span>
+                                </strong>
+                            </div>
+                            <div th:if="${cancha.precioMediaHora != null}" 
+                                 class="d-flex justify-content-between align-items-center">
+                                <span>Media hora:</span>
+                                <strong class="text-success">
+                                    $<span th:text="${#numbers.formatDecimal(cancha.precioMediaHora, 0, 'COMMA', 0, 'POINT')}">45000</span>
+                                </strong>
+                            </div>
+                        </div>
+
+                        <!-- Horarios -->
+                        <div class="mb-3 pb-3 border-bottom">
+                            <h6 class="text-muted mb-2">HORARIOS</h6>
+                            <p class="mb-0">
+                                <i class="bi bi-clock text-info"></i>
+                                <span th:text="${cancha.horaApertura}">08:00</span> - 
+                                <span th:text="${cancha.horaCierre}">22:00</span>
+                            </p>
+                            <small class="text-muted">Todos los días</small>
+                        </div>
+
+                        <!-- Capacidad -->
+                        <div th:if="${cancha.capacidadJugadores != null}" class="mb-3 pb-3 border-bottom">
+                            <h6 class="text-muted mb-2">CAPACIDAD</h6>
+                            <p class="mb-0">
+                                <i class="bi bi-people-fill"></i>
+                                Hasta <strong th:text="${cancha.capacidadJugadores}">10</strong> jugadores
+                            </p>
+                        </div>
+
+                        <!-- Características -->
+                        <div class="mb-4">
+                            <h6 class="text-muted mb-3">CARACTERÍSTICAS</h6>
+                            <div class="row g-2">
+                                <div th:if="${cancha.tieneIluminacion}" class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <span>Iluminación</span>
+                                    </div>
+                                </div>
+                                <div th:if="${cancha.tieneGraderias}" class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <span>Graderías</span>
+                                    </div>
+                                </div>
+                                <div th:if="${cancha.techada}" class="col-6">
+                                    <div class="d-flex align-items-center">
+                                        <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                        <span>Techada</span>
+                                    </div>
+                                </div>
+                                
+                                <!-- Si no tiene ninguna característica -->
+                                <div th:if="${!cancha.tieneIluminacion && !cancha.tieneGraderias && !cancha.techada}" 
+                                     class="col-12">
+                                    <small class="text-muted">Sin características adicionales registradas</small>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Botón de reserva -->
+                        <div sec:authorize="isAuthenticated()">
+                            <a href="#" class="btn btn-dark btn-lg w-100">
+                                <i class="bi bi-calendar-check"></i> Reservar Ahora
+                            </a>
+                            <p class="text-center text-muted mt-2 mb-0">
+                                <small>Próximamente: Sistema de reservas</small>
+                            </p>
+                        </div>
+
+                        <div sec:authorize="!isAuthenticated()">
+                            <a th:href="@{/login}" class="btn btn-outline-dark btn-lg w-100">
+                                <i class="bi bi-box-arrow-in-right"></i> Inicia sesión para reservar
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Botón volver -->
+        <div class="mt-4 text-center">
+            <a th:href="@{/canchas}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Volver a todas las canchas
+            </a>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

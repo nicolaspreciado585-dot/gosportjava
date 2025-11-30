@@ -31,6 +31,13 @@
                         </span>
                     </li>
                     
+                    <!-- Mostrar enlace de dashboard solo si el usuario es ADMIN -->
+                    <li class="nav-item" sec:authorize="hasRole('ADMIN')">
+                        <a class="nav-link" th:href="@{/admin/dashboard}">
+                            <i class="bi bi-speedometer2"></i> Dashboard
+                        </a>
+                    </li>
+                    
                     <!-- Mostrar enlace de admin solo si el usuario es ADMIN -->
                     <li class="nav-item" sec:authorize="hasRole('ADMIN')">
                         <a class="nav-link" th:href="@{/admin/usuarios}">

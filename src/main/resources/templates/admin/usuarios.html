@@ -13,13 +13,18 @@
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
         <div class="container-fluid">
-            <a class="navbar-brand" th:href="@{/home}">
-                <i class="bi bi-arrow-left"></i> Volver al Inicio
+            <a class="navbar-brand" th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2"></i> Dashboard
             </a>
-            <span class="navbar-text text-white">
-                <i class="bi bi-person-circle"></i> 
-                <span sec:authentication="name">Admin</span>
-            </span>
+            <div class="ms-auto">
+                <a class="btn btn-sm btn-outline-light me-2" th:href="@{/home}">
+                    <i class="bi bi-house"></i> Inicio
+                </a>
+                <span class="navbar-text text-white">
+                    <i class="bi bi-person-circle"></i> 
+                    <span sec:authentication="name">Admin</span>
+                </span>
+            </div>
         </div>
     </nav>
 

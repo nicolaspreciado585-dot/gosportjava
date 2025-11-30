@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Administrar Canchas - GoSports</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand" th:href="@{/admin/dashboard}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
+            <div class="ms-auto">
+                <a class="btn btn-sm btn-outline-light me-2" th:href="@{/admin/usuarios}">
+                    <i class="bi bi-people"></i> Usuarios
+                </a>
+                <a class="btn btn-sm btn-outline-light me-2" th:href="@{/home}">
+                    <i class="bi bi-house"></i> Inicio
+                </a>
+                <span class="navbar-text text-white">
+                    <i class="bi bi-person-circle"></i> 
+                    <span sec:authentication="name">Admin</span>
+                </span>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid my-4">
+        <div class="row mb-4">
+            <div class="col-md-8">
+                <h1 class="display-5">
+                    <i class="bi bi-geo-alt-fill"></i> Administrar Canchas
+                </h1>
+                <p class="text-muted">Total: <strong th:text="${totalCanchas}">0</strong> canchas registradas</p>
+            </div>
+            <div class="col-md-4 text-end">
+                <a th:href="@{/admin/canchas/nuevo}" class="btn btn-dark">
+                    <i class="bi bi-plus-circle"></i> Nueva Cancha
+                </a>
+            </div>
+        </div>
+
+        <!-- Mensajes -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <i class="bi bi-check-circle"></i> <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="bi bi-exclamation-triangle"></i> <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+
+        <!-- Grid de Canchas -->
+        <div class="row g-4">
+            <div th:if="${#lists.isEmpty(canchas)}" class="col-12">
+                <div class="alert alert-info text-center">
+                    <i class="bi bi-info-circle"></i> No hay canchas registradas. 
+                    <a th:href="@{/admin/canchas/nuevo}">Crear la primera cancha</a>
+                </div>
+            </div>
+
+            <div th:each="cancha : ${canchas}" class="col-md-4">
+                <div class="card h-100 shadow-sm">
+                    <!-- Imagen -->
+                    <img th:src="${cancha.fotoUrl != null ? cancha.fotoUrl : 'https://placehold.co/400x250/343a40/ffffff?text=Sin+Foto'}" 
+                         class="card-img-top" 
+                         style="height: 200px; object-fit: cover;"
+                         th:alt="${cancha.nombre}">
+                    
+                    <!-- Badge de estado -->
+                    <div class="position-absolute top-0 end-0 m-3">
+                        <span th:if="${cancha.estado == 'disponible'}" class="badge bg-success">Disponible</span>
+                        <span th:if="${cancha.estado == 'mantenimiento'}" class="badge bg-warning">Mantenimiento</span>
+                        <span th:if="${cancha.estado == 'no_disponible'}" class="badge bg-danger">No Disponible</span>
+                    </div>
+
+                    <div class="card-body">
+                        <h5 class="card-title" th:text="${cancha.nombre}">Cancha</h5>
+                        
+                        <!-- Deporte -->
+                        <p class="mb-2">
+                            <i class="bi bi-trophy-fill text-primary"></i>
+                            <strong>Deporte:</strong> 
+                            <span th:text="${cancha.deporte.nombre}">Fútbol</span>
+                        </p>
+
+                        <!-- Localidad -->
+                        <p class="mb-2">
+                            <i class="bi bi-geo-alt text-danger"></i>
+                            <strong>Localidad:</strong> 
+                            <span th:text="${cancha.localidad}">Bosa</span>
+                        </p>
+
+                        <!-- Precio -->
+                        <p class="mb-2">
+                            <i class="bi bi-currency-dollar text-success"></i>
+                            <strong>Precio/hora:</strong> 
+                            <span th:text="${#numbers.formatDecimal(cancha.precioHora, 0, 'COMMA', 0, 'POINT')}">80000</span> COP
+                        </p>
+
+                        <!-- Horario -->
+                        <p class="mb-3">
+                            <i class="bi bi-clock text-info"></i>
+                            <strong>Horario:</strong> 
+                            <span th:text="${cancha.horaApertura}">08:00</span> - 
+                            <span th:text="${cancha.horaCierre}">22:00</span>
+                        </p>
+
+                        <!-- Características -->
+                        <div class="mb-3">
+                            <span th:if="${cancha.tieneIluminacion}" class="badge bg-secondary me-1">
+                                <i class="bi bi-lightbulb"></i> Iluminación
+                            </span>
+                            <span th:if="${cancha.tieneGraderias}" class="badge bg-secondary me-1">
+                                <i class="bi bi-people"></i> Graderías
+                            </span>
+                            <span th:if="${cancha.techada}" class="badge bg-secondary">
+                                <i class="bi bi-umbrella"></i> Techada
+                            </span>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="d-flex gap-2">
+                            <a th:href="@{/admin/canchas/editar/{id}(id=${cancha.id})}" 
+                               class="btn btn-sm btn-primary flex-fill">
+                                <i class="bi bi-pencil"></i> Editar
+                            </a>
+                            
+                            <!-- Menú de cambiar estado -->
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-warning dropdown-toggle" type="button" 
+                                        data-bs-toggle="dropdown">
+                                    <i class="bi bi-gear"></i>
+                                </button>
+                                <ul class="dropdown-menu">
+                                    <li>
+                                        <a class="dropdown-item" 
+                                           th:href="@{/admin/canchas/cambiar-estado/{id}(id=${cancha.id}, nuevoEstado='disponible')}">
+                                            <i class="bi bi-check-circle text-success"></i> Disponible
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" 
+                                           th:href="@{/admin/canchas/cambiar-estado/{id}(id=${cancha.id}, nuevoEstado='mantenimiento')}">
+                                            <i class="bi bi-wrench text-warning"></i> Mantenimiento
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" 
+                                           th:href="@{/admin/canchas/cambiar-estado/{id}(id=${cancha.id}, nuevoEstado='no_disponible')}">
+                                            <i class="bi bi-x-circle text-danger"></i> No Disponible
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <a th:href="@{/admin/canchas/eliminar/{id}(id=${cancha.id})}" 
+                               class="btn btn-sm btn-danger"
+                               onclick="return confirm('¿Eliminar esta cancha?')">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

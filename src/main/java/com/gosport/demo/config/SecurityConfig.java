@@ -18,7 +18,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 // Recursos públicos
                 .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
-                // Rutas protegidas solo para ADMIN (ejemplo futuro)
+                // Canchas públicas - acceso para todos
+                .requestMatchers("/canchas", "/canchas/**").permitAll()
+                // Rutas protegidas solo para ADMIN
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 // Cualquier otra ruta requiere autenticación
                 .anyRequest().authenticated()
