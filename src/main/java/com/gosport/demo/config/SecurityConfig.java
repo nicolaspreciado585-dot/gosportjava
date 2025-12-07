@@ -11,36 +11,59 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity  // ⭐ IMPORTANTE: Habilita @PreAuthorize en los controladores
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-                // Recursos públicos
-                .requestMatchers("/", "/login", "/registro", "/css/**", "/js/**", "/images/**").permitAll()
-                // Canchas públicas - acceso para todos
-                .requestMatchers("/canchas", "/canchas/**").permitAll()
-                // ⭐ NUEVO: Permitir acceso a API de horarios ocupados (para AJAX)
-                .requestMatchers("/reservas/api/**").permitAll()
-                // Rutas de reservas para usuarios autenticados
-                .requestMatchers("/reservas/**").authenticated()
-                // Rutas protegidas solo para ADMIN
-                .requestMatchers("/admin/**").hasRole("ADMIN")
-                // Cualquier otra ruta requiere autenticación
-                .anyRequest().authenticated()
-            )
+    // Recursos públicos
+    .requestMatchers(
+        "/",
+        "/login",
+        "/registro",
+        "/css/**",
+        "/js/**",
+        "/images/**",
+        "/canchas",
+        "/canchas/**"
+    ).permitAll()
+    
+    // ⭐ NUEVO: API de reservas y webhook de pagos (público)
+    .requestMatchers("/reservas/api/**", "/pagos/webhook").permitAll()
+    
+    // ⭐ NUEVO: Rutas de pagos (requieren autenticación)
+    .requestMatchers("/pagos/**").authenticated()
+    
+    // Rutas protegidas (requieren autenticación)
+    .requestMatchers("/home", "/reservas/**").authenticated()
+    
+    // Rutas de admin (solo ADMIN)
+    .requestMatchers("/admin/**").hasRole("ADMIN")
+    
+    // Cualquier otra ruta requiere autenticación
+    .anyRequest().authenticated()
+)
             .formLogin(form -> form
                 .loginPage("/login")
-                .loginProcessingUrl("/login") // URL que procesa el login (POST)
-                .defaultSuccessUrl("/home", true) // Redirige aquí tras login exitoso
-                .failureUrl("/login?error=true") // Redirige aquí si falla
+                .loginProcessingUrl("/login")
+                // ⭐ CAMBIO CRÍTICO: Redirigir según el rol
+                .successHandler((request, response, authentication) -> {
+                    String role = authentication.getAuthorities().toString();
+                    if (role.contains("ROLE_ADMIN")) {
+                        response.sendRedirect("/admin/dashboard");
+                    } else {
+                        response.sendRedirect("/home");
+                    }
+                })
+                .failureUrl("/login?error=true")
                 .permitAll()
             )
             .logout(logout -> logout
                 .logoutUrl("/logout")
-                .logoutSuccessUrl("/login?logout=true")
+                // ⭐ CAMBIO: Redirigir a la landing después del logout
+                .logoutSuccessUrl("/?logout=true")
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()

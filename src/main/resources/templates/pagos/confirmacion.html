@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Confirmación de Pago - GoSports</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .loading-spinner {
+            width: 5rem;
+            height: 5rem;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/home}">
+                <img th:src="@{/images/Logo_Gosport.jpeg}" alt="GoSports Logo" style="height: 40px; margin-right: 10px;">
+                <span class="fw-bold">GoSports</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                <!-- SI HAY PAGO (después de sincronizar) -->
+                <div th:if="${pago != null}">
+                    
+                    <!-- PAGO APROBADO -->
+                    <div th:if="${pago.estado.name() == 'APROBADO'}" class="card shadow-lg border-0">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                            <h1 class="display-4 text-success mt-3">¡Pago Exitoso!</h1>
+                            <p class="lead">Tu reserva ha sido confirmada</p>
+                            
+                            <div class="alert alert-success mt-4">
+                                <h5>
+                                    <i class="bi bi-envelope-check"></i> 
+                                    Confirmación enviada a:
+                                </h5>
+                                <strong th:text="${pago.emailPagador}">email@example.com</strong>
+                            </div>
+
+                            <!-- Detalles del Pago -->
+                            <div class="card mt-4 bg-light">
+                                <div class="card-body text-start">
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-receipt"></i> Detalles de la Transacción
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted d-block">Referencia de Pago</small>
+                                            <strong th:text="${pago.referenciaPago}">REF-123</strong>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted d-block">Monto Pagado</small>
+                                            <strong class="text-success fs-5">
+                                                $<span th:text="${#numbers.formatDecimal(pago.monto, 0, 'COMMA', 0, 'POINT')}">80,000</span> COP
+                                            </strong>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted d-block">Método de Pago</small>
+                                            <strong>
+                                                <i class="bi bi-credit-card"></i>
+                                                <span th:text="${pago.metodoPago.displayName}">PSE</span>
+                                            </strong>
+                                        </div>
+                                        <div class="col-md-6 mb-3">
+                                            <small class="text-muted d-block">Fecha de Pago</small>
+                                            <strong th:text="${#temporals.format(pago.fechaPago, 'dd/MM/yyyy HH:mm')}">01/01/2024 10:30</strong>
+                                        </div>
+                                    </div>
+
+                                    <!-- Información de la Reserva -->
+                                    <hr>
+                                    <h6 class="mb-3">
+                                        <i class="bi bi-calendar-check"></i> Información de la Reserva
+                                    </h6>
+                                    <div class="row">
+                                        <div class="col-md-6 mb-2">
+                                            <small class="text-muted d-block">Cancha</small>
+                                            <strong th:text="${pago.reserva.cancha.nombre}">Cancha Bosa 1</strong>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <small class="text-muted d-block">Deporte</small>
+                                            <strong th:text="${pago.reserva.cancha.deporte.nombre}">Fútbol</strong>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <small class="text-muted d-block">Fecha</small>
+                                            <strong th:text="${#temporals.format(pago.reserva.fecha, 'dd/MM/yyyy')}">15/01/2024</strong>
+                                        </div>
+                                        <div class="col-md-6 mb-2">
+                                            <small class="text-muted d-block">Hora</small>
+                                            <strong>
+                                                <span th:text="${pago.reserva.horaInicio}">10:00</span>
+                                                (<span th:text="${pago.reserva.duracion}">1</span>h)
+                                            </strong>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones de Acción -->
+                            <div class="mt-4 d-flex gap-2 justify-content-center flex-wrap">
+                                <a th:href="@{/reservas/detalle/{id}(id=${pago.reserva.id})}" 
+                                   class="btn btn-success btn-lg">
+                                    <i class="bi bi-ticket-detailed"></i> Ver Detalles de Reserva
+                                </a>
+                                <a th:href="@{/reservas/mis-reservas}" 
+                                   class="btn btn-outline-primary btn-lg">
+                                    <i class="bi bi-calendar-check"></i> Mis Reservas
+                                </a>
+                                <a th:href="@{/home}" 
+                                   class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-house"></i> Ir al Inicio
+                                </a>
+                            </div>
+
+                            <!-- Código QR -->
+                            <div class="mt-4 p-3 bg-white border rounded">
+                                <p class="text-muted small mb-2">
+                                    <i class="bi bi-qr-code"></i> Presenta este código al llegar a la cancha
+                                </p>
+                                <div th:style="'width: 150px; height: 150px; margin: 0 auto; background: url(\'https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=' + ${pago.referenciaPago} + '\') no-repeat center; background-size: contain;'">
+                                </div>
+                                <p class="mt-2 mb-0">
+                                    <code class="fs-6" th:text="${pago.referenciaPago}">REF-123</code>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PAGO PENDIENTE/PROCESANDO -->
+                    <div th:if="${pago.estado.name() == 'PENDIENTE' || pago.estado.name() == 'PROCESANDO'}" 
+                         class="card shadow-lg border-0">
+                        <div class="card-body text-center py-5">
+                            <div class="spinner-border text-warning loading-spinner" role="status">
+                                <span class="visually-hidden">Verificando...</span>
+                            </div>
+                            <h1 class="display-4 text-warning mt-4">Verificando tu Pago</h1>
+                            <p class="lead">Por favor espera un momento...</p>
+                            
+                            <div class="alert alert-warning mt-4">
+                                <i class="bi bi-hourglass-split"></i>
+                                <strong>Estamos procesando tu pago.</strong><br>
+                                Esto puede tardar unos minutos. No cierres esta ventana.
+                            </div>
+
+                            <div class="mt-4">
+                                <button onclick="location.reload()" class="btn btn-warning btn-lg">
+                                    <i class="bi bi-arrow-clockwise"></i> Actualizar Estado
+                                </button>
+                            </div>
+
+                            <!-- Auto-recargar cada 5 segundos -->
+                            <script>
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 5000);
+                            </script>
+                        </div>
+                    </div>
+
+                    <!-- PAGO RECHAZADO/ERROR -->
+                    <div th:if="${pago.estado.name() == 'RECHAZADO' || pago.estado.name() == 'ERROR'}" 
+                         class="card shadow-lg border-0">
+                        <div class="card-body text-center py-5">
+                            <i class="bi bi-x-circle-fill text-danger" style="font-size: 5rem;"></i>
+                            <h1 class="display-4 text-danger mt-3">Pago No Procesado</h1>
+                            <p class="lead">Hubo un problema con tu pago</p>
+                            
+                            <div class="alert alert-danger mt-4">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                <strong>Tu pago no pudo ser procesado.</strong><br>
+                                Por favor, verifica tus datos e intenta nuevamente con otro método de pago.
+                            </div>
+
+                            <div class="mt-4 d-flex gap-2 justify-content-center flex-wrap">
+                                <a th:href="@{/pagos/metodo/{id}(id=${pago.reserva.id})}" 
+                                   class="btn btn-danger btn-lg">
+                                    <i class="bi bi-arrow-repeat"></i> Intentar Nuevamente
+                                </a>
+                                <a th:href="@{/reservas/mis-reservas}" 
+                                   class="btn btn-outline-secondary btn-lg">
+                                    <i class="bi bi-calendar"></i> Mis Reservas
+                                </a>
+                            </div>
+
+                            <!-- Ayuda -->
+                            <div class="card mt-4 border-info">
+                                <div class="card-body">
+                                    <h6 class="text-info">
+                                        <i class="bi bi-info-circle"></i> ¿Necesitas ayuda?
+                                    </h6>
+                                    <p class="small mb-0">
+                                        Si el problema persiste, contáctanos a:<br>
+                                        <strong>soporte@gosports.com</strong> | 
+                                        <strong>+57 300 123 4567</strong>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- SI NO HAY PAGO (primera carga desde Wompi) -->
+                <div th:if="${pago == null}" class="card shadow-lg border-0">
+                    <div class="card-body text-center py-5">
+                        <div class="spinner-border text-primary loading-spinner pulse" role="status">
+                            <span class="visually-hidden">Cargando...</span>
+                        </div>
+                        <h1 class="display-4 text-primary mt-4">Procesando tu Pago</h1>
+                        <p class="lead">Estamos verificando la transacción con el banco...</p>
+                        
+                        <div class="alert alert-info mt-4">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Por favor espera.</strong><br>
+                            Esto puede tardar unos segundos. No cierres esta ventana.
+                        </div>
+
+                        <div class="progress mt-4" style="height: 30px;">
+                            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+                                 role="progressbar" 
+                                 style="width: 100%">
+                                Verificando...
+                            </div>
+                        </div>
+
+                        <!-- Auto-recargar -->
+                        <script>
+                            setTimeout(function() {
+                                location.reload();
+                            }, 3000);
+                        </script>
+                    </div>
+                </div>
+
+                <!-- Mensaje de Error -->
+                <div th:if="${errorMessage != null}" class="alert alert-danger mt-3">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    <span th:text="${errorMessage}"></span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="py-4 bg-light text-center mt-5">
+        <div class="container">
+            <p class="mb-0 text-muted">
+                <i class="bi bi-shield-check text-success"></i>
+                Pago 100% Seguro procesado por Wompi
+            </p>
+            <small class="text-muted">© 2025 GoSports - Plataforma de Reserva de Canchas</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

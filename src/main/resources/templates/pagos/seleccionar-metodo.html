@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Método de Pago - GoSports</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+    
+    <style>
+        .payment-method {
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #dee2e6;
+            min-height: 120px;
+        }
+        .payment-method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+            border-color: #0d6efd;
+        }
+        .payment-method.selected {
+            border-color: #0d6efd;
+            background-color: #e7f1ff;
+        }
+        .payment-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        .secure-badge {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+        <div class="container">
+            <a class="navbar-brand" th:href="@{/home}">
+                <img th:src="@{/images/Logo_Gosport.jpeg}" alt="GoSports Logo" style="height: 40px; margin-right: 10px;">
+                <span class="fw-bold">GoSports</span>
+            </a>
+        </div>
+    </nav>
+
+    <div class="container my-5">
+        
+        <!-- Encabezado -->
+        <div class="row mb-4">
+            <div class="col-md-12 text-center">
+                <div class="secure-badge mb-3">
+                    <i class="bi bi-shield-check"></i> Pago Seguro con Wompi
+                </div>
+                <h1 class="display-5">Selecciona tu Método de Pago</h1>
+                <p class="lead text-muted">Completa tu reserva de forma rápida y segura</p>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Métodos de Pago -->
+            <div class="col-md-8">
+                <form method="POST" th:action="@{/pagos/procesar}" id="formPago">
+                    <input type="hidden" name="reservaId" th:value="${reserva.id}">
+                    <input type="hidden" name="metodoPago" id="metodoPagoSeleccionado">
+
+                    <h4 class="mb-4">
+                        <i class="bi bi-credit-card"></i> Métodos de Pago Disponibles
+                    </h4>
+
+                    <div class="row g-3">
+                        
+                        <!-- PSE -->
+                        <div class="col-md-6">
+                            <div class="card payment-method text-center h-100" onclick="seleccionarMetodo('PSE', this)">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <i class="bi bi-bank text-primary payment-icon"></i>
+                                    <h5 class="card-title mb-2">PSE</h5>
+                                    <p class="card-text small text-muted mb-0">Débito desde tu cuenta bancaria</p>
+                                    <span class="badge bg-success mt-2">Inmediato</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Nequi -->
+                        <div class="col-md-6">
+                            <div class="card payment-method text-center h-100" onclick="seleccionarMetodo('NEQUI', this)">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <i class="bi bi-phone text-warning payment-icon"></i>
+                                    <h5 class="card-title mb-2">Nequi</h5>
+                                    <p class="card-text small text-muted mb-0">Paga desde tu cuenta Nequi</p>
+                                    <span class="badge bg-success mt-2">Inmediato</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Daviplata -->
+                        <div class="col-md-6">
+                            <div class="card payment-method text-center h-100" onclick="seleccionarMetodo('DAVIPLATA', this)">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <i class="bi bi-wallet2 text-danger payment-icon"></i>
+                                    <h5 class="card-title mb-2">Daviplata</h5>
+                                    <p class="card-text small text-muted mb-0">Transferencia desde Daviplata</p>
+                                    <span class="badge bg-success mt-2">Inmediato</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Bancolombia -->
+                        <div class="col-md-6">
+                            <div class="card payment-method text-center h-100" onclick="seleccionarMetodo('BANCOLOMBIA', this)">
+                                <div class="card-body d-flex flex-column justify-content-center">
+                                    <i class="bi bi-building text-warning payment-icon"></i>
+                                    <h5 class="card-title mb-2">Bancolombia</h5>
+                                    <p class="card-text small text-muted mb-0">Transferencia Bancolombia</p>
+                                    <span class="badge bg-success mt-2">Inmediato</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Tarjeta de Crédito/Débito -->
+                        <div class="col-md-12">
+                            <div class="card payment-method text-center" onclick="seleccionarMetodo('CARD', this)">
+                                <div class="card-body">
+                                    <i class="bi bi-credit-card-2-front text-info payment-icon"></i>
+                                    <h5 class="card-title mb-2">Tarjeta de Crédito o Débito</h5>
+                                    <p class="card-text small text-muted mb-0">
+                                        Visa, Mastercard, American Express
+                                    </p>
+                                    <div class="mt-2">
+                                        <span class="badge bg-primary">Crédito</span>
+                                        <span class="badge bg-info">Débito</span>
+                                        <span class="badge bg-secondary">Cuotas disponibles</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Botón de Pago -->
+                    <div class="mt-4 text-center">
+                        <button type="submit" class="btn btn-success btn-lg" id="btnPagar" disabled>
+                            <i class="bi bi-lock-fill"></i> Continuar al Pago Seguro
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Información de Seguridad -->
+                <div class="alert alert-info mt-4">
+                    <i class="bi bi-info-circle"></i>
+                    <strong>Pago 100% Seguro:</strong>
+                    Todas las transacciones son procesadas por Wompi, certificado con los más altos estándares de seguridad (PCI DSS).
+                </div>
+            </div>
+
+            <!-- Resumen de Compra -->
+            <div class="col-md-4">
+                <div class="card shadow sticky-top" style="top: 20px;">
+                    <div class="card-header bg-dark text-white">
+                        <h5 class="mb-0">
+                            <i class="bi bi-receipt"></i> Resumen de Compra
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <!-- Cancha -->
+                        <div class="mb-3">
+                            <small class="text-muted">CANCHA</small>
+                            <h6 class="mb-0" th:text="${reserva.cancha.nombre}">Cancha Bosa 1</h6>
+                            <small th:text="${reserva.cancha.deporte.nombre}">Fútbol</small>
+                        </div>
+
+                        <hr>
+
+                        <!-- Fecha y Hora -->
+                        <div class="mb-3">
+                            <small class="text-muted">FECHA Y HORA</small>
+                            <p class="mb-0">
+                                <i class="bi bi-calendar3"></i>
+                                <span th:text="${#temporals.format(reserva.fecha, 'dd/MM/yyyy')}">01/01/2024</span>
+                            </p>
+                            <p class="mb-0">
+                                <i class="bi bi-clock"></i>
+                                <span th:text="${reserva.horaInicio}">10:00</span>
+                                (<span th:text="${reserva.duracion}">1</span>h)
+                            </p>
+                        </div>
+
+                        <hr>
+
+                        <!-- Precio -->
+                        <div class="mb-3">
+                            <small class="text-muted">SUBTOTAL</small>
+                            <h5 class="mb-0">
+                                $<span th:text="${#numbers.formatDecimal(reserva.precioTotal, 0, 'COMMA', 0, 'POINT')}">80,000</span> COP
+                            </h5>
+                        </div>
+
+                        <hr>
+
+                        <!-- Total -->
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h4 class="mb-0">TOTAL</h4>
+                            <h3 class="text-success mb-0">
+                                $<span th:text="${#numbers.formatDecimal(reserva.precioTotal, 0, 'COMMA', 0, 'POINT')}">80,000</span>
+                            </h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Garantías -->
+                <div class="card mt-3 border-success">
+                    <div class="card-body">
+                        <h6 class="text-success">
+                            <i class="bi bi-check-circle-fill"></i> Garantías
+                        </h6>
+                        <ul class="small mb-0">
+                            <li>Confirmación inmediata</li>
+                            <li>Pago 100% seguro</li>
+                            <li>Cancelación gratuita 24h antes</li>
+                            <li>Soporte 24/7</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        function seleccionarMetodo(metodo, elemento) {
+            // Remover selección anterior
+            document.querySelectorAll('.payment-method').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Marcar como seleccionado
+            elemento.classList.add('selected');
+            
+            // Actualizar campo oculto
+            document.getElementById('metodoPagoSeleccionado').value = metodo;
+            
+            // Habilitar botón de pago
+            document.getElementById('btnPagar').disabled = false;
+        }
+    </script>
+</body>
+</html>
